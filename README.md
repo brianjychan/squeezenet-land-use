@@ -1,13 +1,13 @@
 # Aerial Imaging Classification with a Lightweight Network for Edge Computing
 
-Brian Chan
-CS230
+Brian Chan  
+CS230  
 
-Abstract: 
+### Abstract: 
 
 Edge computing and satellite imagery trends demand lightweight algorithms for computational analysis. In this paper, I investigate applying SqueezeNet, a neural network with AlexNet-level accuracy and 510x less size, to the task of aerial imaging land use classification with the NWPU-RESISC45 dataset. By the end of the paper, we find that the models developed using transfer learning are not as robust as heftier models and invite further investigation to maintain their performance on aerial imaging.
 
-Summary of files:
+### Summary of files:
 
 code_squeezenet.py: contains two functions that create the SqueezeNet networks: the first being one without the top layers, and the second being one for fine-tuning, as it can be adapted to create SqueezeNet with any desired following layers to allow SqueezeNet's parameters to be adjusted.
 
@@ -20,6 +20,7 @@ tune_squeeze.py: is used as driver code to create and then train a tunable squee
 vgg_train.py: allows basic implementation of transfer learning with a vgg-16 model: creates an instance without top levels, captures its outputs, and then uses those outputs as input to another trainable model.
 
 ----
+### Misc Files
 
 move.py: a script that can be adapted to move image samples between test/train/validation directories.
 
