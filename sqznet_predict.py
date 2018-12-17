@@ -13,7 +13,7 @@ https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_mat
 import datetime
 import sys
 import os
-import code_squeezenet
+import sqznet_models
 from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 from keras import optimizers
 from keras.models import Sequential, Model, load_model
@@ -57,7 +57,7 @@ lr = .001
 Bottom Model: SqueezeNet without top
 '''
 
-model = code_squeezenet.SqueezeNet(include_top = False)
+model = sqznet_models.SqueezeNet(include_top = False)
 test_datagen = ImageDataGenerator(rescale=1. / 255)
 test_generator = test_datagen.flow_from_directory(
     test_data_path,
@@ -147,8 +147,9 @@ def plot_confusion_matrix(conf, classes,
     plt.xticks(tick_marks, classes, rotation=45)
     plt.yticks(tick_marks, classes)
 
-    fmt = '.2f' if normalize else 'd'
-    thresh = cm.max() / 2.
+    # Code for printing numbers in squares
+    # fmt = '.2f' if normalize else 'd'
+    # thresh = cm.max() / 2.
     # for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
     #     plt.text(j, i, format(cm[i, j], fmt),
     #              horizontalalignment="center",

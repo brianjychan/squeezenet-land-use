@@ -7,12 +7,13 @@ with randomized final layer weights; they must already be trained as well. Consu
 https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
 for more info.
 
+Can be used as driver code for transfer learning with the models from sqznet_models
 Instantiates a SqueezeNet model that also has its final layers trained by using code_squeezenet.SqueezeNet_Tune().
 """
 import datetime
 import sys
 import os
-import code_squeezenet
+import sqznet_models
 from keras.preprocessing.image import ImageDataGenerator
 from keras import optimizers
 from keras.models import Sequential
@@ -38,7 +39,7 @@ classes_num = 45
 epochs = 25
 lr = .001
 
-model = code_squeezenet.SqueezeNet_Tune(include_top = False)
+model = sqznet_models.SqueezeNet_Tune(include_top = False)
 print('Model loaded.')
 print(model.summary())
 

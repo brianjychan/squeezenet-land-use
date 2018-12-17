@@ -6,7 +6,7 @@ Code referenced from https://gist.github.com/fchollet/f35fbc80e066a49d65f1688a7e
 import datetime
 import sys
 import os
-import code_squeezenet
+import sqznet_models
 from keras.preprocessing.image import ImageDataGenerator
 from keras import applications
 from keras import optimizers

@@ -97,7 +97,7 @@ def SqueezeNet(include_top=True, weights="imagenet", input_tensor=None, input_sh
 
 ''' 
 Because the above uses Keras Functional API, I opted to add 
-layers directly on top, so this is an entire model. You can edit
+layers directly on top, so this creates an entire model. You can edit
 the layers below to properly accomodate for the generation of weights
 for fine-tuning this model with different top layers.
 '''

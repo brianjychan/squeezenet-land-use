@@ -10,7 +10,7 @@ and their weights to have names, versus the Sequential model.
 import datetime
 import sys
 import os
-import code_squeezenet
+import sqznet_models
 from keras.preprocessing.image import ImageDataGenerator
 from keras import optimizers
 from keras.models import Sequential, Model
@@ -42,7 +42,7 @@ lr = .001
 Instantiate bottom (transfer learning) model and get its outputs on
 training and validation data
 '''
-model = code_squeezenet.SqueezeNet(include_top = False)
+model = sqznet_models.SqueezeNet(include_top = False)
 
 # Get SqueezeNet's processing of validation data and save to file
 train_datagen = ImageDataGenerator(
