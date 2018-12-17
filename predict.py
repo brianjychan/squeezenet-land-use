@@ -1,7 +1,8 @@
 """
-Baseline model is Keras 2.0, adapted from Keras 1.0 "CNN Image Classifier" from Github user tatsuyah at https://github.com/tatsuyah/CNN-Image-Classifier.
+Adapted from "CNN Image Classifier" from Github user tatsuyah at https://github.com/tatsuyah/CNN-Image-Classifier.
 
-Code modified to accomodate scalable dataset building and directory walking.
+Pairs with train.py
+Basic but inflexible code for making predictions from a model.
 """
 
 import os
@@ -10,23 +11,14 @@ from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 from keras.models import Sequential, load_model
 from sklearn.metrics import f1_score
 
+classes_num = 45
 img_width, img_height = 64, 64
 model = "3lay"
 model_path = './models/{}.h5'.format(model)
-model_weights_path = './models/{}weights.h5'.format(model)
-
-# model_path = './models/caffe-2018-12-14 04:40:14.558896.h5'
-# model_weights_path = './models/caffeweights2018-12-14 04:40:14.725004.h5'
+model_weights_path = './models/{}-weights.h5'.format(model)
 
 model = load_model(model_path)
 model.load_weights(model_weights_path)
-
-# class_list = ['']
-# for subdir, dirs, files in os.walk('./data'):
-#   if subdir.startswith('./data/train/'):
-#     name = subdir[13:]
-#     class_list.append(name)
-
 
 def predict(file):
   x = load_img(file, target_size=(img_width,img_height))
@@ -41,14 +33,29 @@ def predict(file):
   # print(array)
   return answer
 
+'''
+Calculating the metrics of a model for a test directory 
+
+data/
+  test/
+    class1/
+      class1_1.jpg
+      ...
+    class2/
+      class2_1.jpg
+    ...
+  train/
+    ...
+  test/
+    ...
+
+'''
 y_actual = []
 y_pred = []
 
-recall = [0] * 45 # correctly predicted an i was i
-
-precision_predicted = [0] * 45 # predicted to have i
-precision_actual = [0] * 45 # actually had i when predicted to
-
+recall = [0] * classes_num # correctly predicted an i was i
+precision_predicted = [0] * classes_num # predicted to have i
+precision_actual = [0] * classes_num # actually had i when predicted to
 
 for root, dirs, files in os.walk('./data/test/'):
   for i, dr in enumerate(sorted(dirs)):
@@ -71,14 +78,12 @@ for root, dirs, files in os.walk('./data/test/'):
           precision_actual[i] += 1
         else:
           precision_predicted[result] += 1
-
-    # if recall[i] == 0:
-    #   print("0 recall: {}".format(dr))
-          
+       
 
 print(recall)
+
 tot = []
-for i in range(0, 45):
+for i in range(0, classes_num):
   tot.append(precision_actual[i] / precision_predicted[i])
 print(tot)
 

@@ -9,26 +9,20 @@ and
 https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
  
 
-
 '''
 import datetime
 import sys
 import os
 import code_squeezenet
-from keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 from keras import optimizers
-from keras.models import Sequential, Model
+from keras.models import Sequential, Model, load_model
 from keras.layers import Dropout, Flatten, Dense, Activation
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras import callbacks
 from keras import utils
 import numpy as np
 from keras.layers import Input, Flatten, Dropout, Concatenate, Activation, Dense
-
-import os
-import numpy as np
-from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
-from keras.models import Sequential, load_model
 from sklearn import metrics
 from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
@@ -41,7 +35,6 @@ img_width, img_height = 64, 64
 model_path = './models/squeeze-2018-12-16 14:57:55.220107.h5'
 model_weights_path = './models/squeeze_weights-2018-12-16 14:57:55.273335.h5'
 
-
 test_data_path = './data/test'
 
 """
@@ -49,18 +42,23 @@ Parameters
 """
 img_width, img_height = 64, 64
 
+
 name = 'squeeze'
-nb_train_samples = 25200
-nb_validation_samples = 3150
-batch_size = 64
+
+# Split 700 images x 45 classes  by 80:10:10 train:validation:test
+nb_train_samples = 25200 # 560 * 45 classes
+nb_validation_samples = 3150 #70 * 45 classes
+batch_size = 64 
 classes_num = 45
 epochs = 25
 lr = .001
 
+'''
+Bottom Model: SqueezeNet without top
+'''
+
 model = code_squeezenet.SqueezeNet(include_top = False)
-
 test_datagen = ImageDataGenerator(rescale=1. / 255)
-
 test_generator = test_datagen.flow_from_directory(
     test_data_path,
     target_size=(img_height, img_width),
@@ -69,22 +67,19 @@ test_generator = test_datagen.flow_from_directory(
     shuffle=False
     )
 
-bottleneck_features_test = model.predict_generator(test_generator, 3150 // batch_size + 1)
-with open('bottleneck_features_test.npy', 'wb') as features_test_file: 
-    np.save(features_test_file, bottleneck_features_test)
+test_data = model.predict_generator(test_generator, 3150 // batch_size + 1)
 
-with open('bottleneck_features_test.npy', 'rb') as test_data_file:
-    test_data = np.load(test_data_file)
-
+'''
+Top Model
+'''
 top_model = load_model(model_path)
 top_model.load_weights(model_weights_path)
 
-test_trues = np.arange(45)
-test_trues = np.repeat(test_trues, 70)
+test_labels = np.arange(classes_num)
+test_labels = np.repeat(test_labels, 70)
 
-val_preds = top_model.predict(test_data)
-
-val_preds = np.argmax(val_preds, axis=-1)
+test_preds = top_model.predict(test_data)
+test_preds = np.argmax(test_preds, axis=-1)
 
 class_list = ['']
 for subdir, dirs, files in os.walk('./data'):
@@ -95,34 +90,40 @@ for subdir, dirs, files in os.walk('./data'):
     class_list.append(name)
 
 class_list = class_list[1:]
-conf = metrics.confusion_matrix(test_trues, val_preds)
+conf = metrics.confusion_matrix(test_labels, test_preds)
 
-recall = [0] * 45
-precision_predicted = [0] * 45
-precision_actual = [0] * 45
+recall = [0] * classes_num
+precision_predicted = [0] * classes_num
+precision_actual = [0] * classes_num
 
-for i in range(0, len(val_preds)):
-    if val_preds[i] == test_trues[i]:
+for i in range(0, len(test_preds)):
+    if test_preds[i] == test_labels[i]:
         recall[i//70] += 1
-        precision_predicted[val_preds[i]] += 1
-        precision_actual[val_preds[i]] += 1
-    else:
-        precision_predicted[val_preds[i]] += 1
+        precision_actual[test_preds[i]] += 1
+    precision_predicted[test_preds[i]] += 1
 
-tot = []
-for i in range(0, 45):
+precision_stats = []
+for i in range(0, classes_num):
     if precision_predicted[i] > 0:
-        tot.append(precision_actual[i] / precision_predicted[i])
+        precision_stats.append(precision_actual[i] / precision_predicted[i])
     else:
-        tot.append(0)
-print(tot)
+        precision_stats.append(0)
+print(precision_stats)
 
-print("ave recall: {}".format( str(float(sum(recall)) / float(len(recall))  / float(45) )))
-print("ave pres: {}".format(str(float(sum(tot)) / float(len(tot)) / float(45) )))
+print("Average recall: {}".format(str(float(sum(recall)) / len(recall)  / classes_num )))
+print("Average precision: {}".format(str(float(sum(precision_stats)) / len(precision_stats) / classes_num )))
 
 
-# Code to print confusion matrix, sourced from above sklearn website$
+'''
+Code to print confusion matrix, sourced from the cited sklearn website
+
+(https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html)
+
+Was run with python2.
+
+'''
 plt.figure()
+
 def plot_confusion_matrix(conf, classes,
                           normalize=False,
                           title='Confusion matrix',

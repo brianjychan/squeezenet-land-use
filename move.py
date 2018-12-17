@@ -1,3 +1,7 @@
+'''
+Miscellaneous code that was utilized to move files around
+'''
+
 import os
 
 # for dr in os.listdir('./data/train'):

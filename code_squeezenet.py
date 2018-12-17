@@ -1,5 +1,5 @@
 '''
-Code below to generate SqueezeNet instances is
+Code below to generate SqueezeNet networks is
 referenced from https://github.com/wohlert/keras-squeezenet/blob/master/squeezenet.py  .
 
 Added duplicate infrastructure to create another model to accomodate for direct fine-tuning capabilities.
@@ -170,8 +170,9 @@ def SqueezeNet_Tune(include_top=True, weights="imagenet", input_tensor=None, inp
         weights_path = get_file('squeezenet_weights.h5',
                                 WEIGHTS_PATH,
                                 cache_subdir='./models')
-
+        # Load transfer learning model weights
         model.load_weights(weights_path, by_name=True)
+        # Load top model weights
         model.load_weights(top_model_weights_path, by_name=True)
 
     return model

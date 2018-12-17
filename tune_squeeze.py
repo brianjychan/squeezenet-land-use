@@ -1,5 +1,13 @@
 """
-Using transfer learning with SqueezeNet code trained on imagenet
+Driver code for the fine-tuning of a SqueezeNet model. 
+
+Corresponds with squeeze_train.train_top_model_functional() and code_squeezenet.SqueezeNet_Tune() 
+to create the required weights for fine tuning. You cannot begin training the top model
+with randomized final layer weights; they must already be trained as well. Consult
+https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
+for more info.
+
+Instantiates a SqueezeNet model that also has its final layers trained by using code_squeezenet.SqueezeNet_Tune().
 """
 import datetime
 import sys
@@ -13,18 +21,6 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras import callbacks
 from keras import utils
 import numpy as np
-
-# DEV = False
-# argvs = sys.argv
-# argc = len(argvs)
-
-# if argc > 1 and (argvs[1] == "--development" or argvs[1] == "-d"):
-#   DEV = True
-
-# if DEV:
-#   epochs = 2
-# else:
-#   epochs = 15
 
 train_data_path = './data/train'
 validation_data_path = './data/validation'
@@ -44,31 +40,21 @@ lr = .001
 
 model = code_squeezenet.SqueezeNet_Tune(include_top = False)
 print('Model loaded.')
-print("All layers: {}".format(model.layers))
-print("num layers: {}".format(len(model.layers)))
-print("sqz model has: {}".format(model.summary()))
+print(model.summary())
 
-# Up to but not including the last fire block
+# Up to but not including the last fire block of convolutional layers
 for layer in model.layers[:33]:
     layer.trainable = False
-
-
-print("new model: {}".format(model.summary()))
 
 model.compile(optimizer= optimizers.SGD(lr=1e-6, momentum=.9), metrics=['accuracy'], loss='categorical_crossentropy')
 
 
-#now we have a model that has weights pre instantiated and is ready to train
-
-###############################
+# Set up training data
 train_datagen = ImageDataGenerator(
     rescale=1. / 255,
     shear_range=0.2,
     zoom_range=0.2,
     horizontal_flip=True)
-
-valid_datagen = ImageDataGenerator(rescale=1. / 255)
-
 train_generator = train_datagen.flow_from_directory(
     train_data_path,
     target_size=(img_height, img_width),
@@ -77,7 +63,7 @@ train_generator = train_datagen.flow_from_directory(
     shuffle=False
     )
 
-
+valid_datagen = ImageDataGenerator(rescale=1. / 255)
 valid_generator = valid_datagen.flow_from_directory(
     validation_data_path,
     target_size=(img_height, img_width),
@@ -86,6 +72,7 @@ valid_generator = valid_datagen.flow_from_directory(
     shuffle=False
     )
 
+# Train the model
 model.fit_generator(train_generator, 
     steps_per_epoch = nb_train_samples //batch_size,
     epochs = epochs,
