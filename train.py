@@ -6,7 +6,7 @@ Simple CNN utilizing Keras, with 2 sets of convolutional layers followed by Max 
 
 Architecture: CNN->ReLU -> MaxPool -> CNN -> ReLU -> MaxPool -> Flatten -> FC ->FC -> Softmax output
 """
-
+import datetime
 import sys
 import os
 from keras.preprocessing.image import ImageDataGenerator
@@ -34,30 +34,45 @@ validation_data_path = './data/validation'
 """
 Parameters
 """
-img_width, img_height = 64, 64
+img_width, img_height = 256,256
 batch_size = 64
-steps_per_epoch = 464
-samples_per_epoch = 29740
+steps_per_epoch = 394
+# samples_per_epoch = 29740
 validation_steps = 27
-nb_filters1 = 32
-nb_filters2 = 64
-conv1_size = 3
-conv2_size = 2
+nb_filters1 = 256
+nb_filters2 = 256
+nb_filters4 = 384
+nb_filters5 = 384
+nb_filters6 = 256
+conv1_size = 5
+conv2_size = 3
+conv3_size = 3
 pool_size = 2
 classes_num = 45
 lr = 0.001
+name = '3lay'
 
 model = Sequential()
 model.add(Convolution2D(nb_filters1, conv1_size, padding ="same", input_shape=(img_width, img_height, 3)))
 model.add(Activation("relu"))
-model.add(MaxPooling2D(pool_size=(pool_size, pool_size)))
 
 model.add(Convolution2D(nb_filters2, conv2_size, padding ="same"))
 model.add(Activation("relu"))
 model.add(MaxPooling2D(pool_size=(pool_size, pool_size), data_format='channels_first'))
 
+# model.add(Convolution2D(nb_filters4, conv3_size, padding ="same"))
+# model.add(Activation("relu"))
+# model.add(MaxPooling2D(pool_size=(pool_size, pool_size), data_format='channels_first'))
+
+# model.add(Convolution2D(nb_filters5, conv3_size, padding ="same"))
+# model.add(Activation("relu"))
+
+model.add(MaxPooling2D(pool_size=(pool_size, pool_size), data_format='channels_first'))
+
 model.add(Flatten())
-model.add(Dense(256))
+model.add(Dense(1024))
+model.add(Activation("relu"))
+model.add(Dense(1024))
 model.add(Activation("relu"))
 model.add(Dropout(0.5))
 model.add(Dense(classes_num, activation='softmax'))
@@ -72,7 +87,7 @@ train_datagen = ImageDataGenerator(
     zoom_range=0.2,
     horizontal_flip=True)
 
-test_datagen = ImageDataGenerator(rescale=1. / 255)
+valid_datagen = ImageDataGenerator(rescale=1. / 255)
 
 train_generator = train_datagen.flow_from_directory(
     train_data_path,
@@ -80,7 +95,7 @@ train_generator = train_datagen.flow_from_directory(
     batch_size=batch_size,
     class_mode='categorical')
 
-validation_generator = test_datagen.flow_from_directory(
+validation_generator = valid_datagen.flow_from_directory(
     validation_data_path,
     target_size=(img_height, img_width),
     batch_size=batch_size,
@@ -104,5 +119,5 @@ model.fit_generator(
 target_dir = './models/'
 if not os.path.exists(target_dir):
   os.mkdir(target_dir)
-model.save('./models/model.h5')
-model.save_weights('./models/weights.h5')
+model.save('./models/{}-{}.h5'.format(name, datetime.datetime.now()))
+model.save_weights('./models/{}weights{}.h5'.format(name, datetime.datetime.now()))
