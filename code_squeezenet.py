@@ -1,3 +1,10 @@
+'''
+Code below to generate SqueezeNet instances is
+referenced from https://github.com/wohlert/keras-squeezenet/blob/master/squeezenet.py  .
+
+Added duplicate infrastructure to create another model to accomodate for direct fine-tuning capabilities.
+'''
+
 import keras.backend as K
 
 from keras.models import Model
@@ -88,8 +95,12 @@ def SqueezeNet(include_top=True, weights="imagenet", input_tensor=None, input_sh
 
     return model
 
-# Because the above uses Keras Functional API, I opted to add 
-# layers directly on top, so this is an entire model.
+''' 
+Because the above uses Keras Functional API, I opted to add 
+layers directly on top, so this is an entire model. You can edit
+the layers below to properly accomodate for the generation of weights
+for fine-tuning this model with different top layers.
+'''
 def SqueezeNet_Tune(include_top=True, weights="imagenet", input_tensor=None, input_shape=None, pooling=None, classes=1000):
     top_model_weights_path = './models/top_model_functional_weights-2018-12-17 04:33:00.257219.h5'
     if weights not in {'imagenet', None}:
