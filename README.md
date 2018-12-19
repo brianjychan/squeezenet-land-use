@@ -6,6 +6,9 @@ Brian Chan
 
 Edge computing and satellite imagery trends demand lightweight algorithms for computational analysis. In this paper, I investigate applying SqueezeNet, a neural network with AlexNet-level accuracy and 510x less size, to the task of aerial imaging land use classification with the NWPU-RESISC45 dataset. By the end of the paper, we find that the models developed using transfer learning are not as robust as heftier models and invite further investigation to maintain their performance on aerial imaging.
 
+Original SqueezeNet paper:
+https://arxiv.org/abs/1602.07360
+
 ### Summary of files:
 
 **sqznet_models.py**: contains two functions that create the SqueezeNet networks: the first being one without the top layers, and the second being one for fine-tuning, as it can be adapted to create SqueezeNet with any desired following layers to allow SqueezeNet's parameters to be adjusted.
